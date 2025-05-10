@@ -1,6 +1,7 @@
 
 // This file implements the toast hook functionality
 import * as React from "react"
+import { ToastProvider as RadixToastProvider } from "@/components/ui/toast"
 import {
   Toast,
   ToastActionElement,
@@ -135,16 +136,7 @@ function useToast() {
 }
 
 function ToastProvider({ children }: { children: React.ReactNode }) {
-  // Create a ref with custom reducer
-  const reducerWithQueue = React.useCallback((state: State, action: Action) => {
-    return reducer(state, action, addToRemoveQueue)
-  }, [])
-  
-  const [state, dispatch] = React.useReducer(reducerWithQueue, {
-    toasts: [],
-  })
-
-  // Define addToRemoveQueue inside the component
+  // Create a function to add to remove queue
   function addToRemoveQueue(toastId: string) {
     if (toastTimeouts.has(toastId)) {
       return
@@ -160,6 +152,15 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
 
     toastTimeouts.set(toastId, timeout)
   }
+  
+  // Create a customized reducer that uses our addToRemoveQueue
+  const reducerWithQueue = React.useCallback((state: State, action: Action) => {
+    return reducer(state, action, addToRemoveQueue)
+  }, [])
+  
+  const [state, dispatch] = React.useReducer(reducerWithQueue, {
+    toasts: [],
+  })
 
   React.useEffect(() => {
     return () => {
@@ -208,17 +209,18 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
         dismiss,
       }}
     >
-      {children}
+      <RadixToastProvider>
+        {children}
+      </RadixToastProvider>
     </ToastContext.Provider>
   )
 }
 
-// Create a toast function for standalone usage
+// Create a standalone toast function
 const toast = (props: Omit<ToasterToast, "id">) => {
   const { toast: toastFn } = useToast()
   return toastFn(props)
 }
 
-// Export the hook and types
 export { useToast, ToastProvider, toast }
 export type { ToasterToast }
