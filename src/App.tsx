@@ -1,4 +1,5 @@
 
+import { ToastProvider } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,30 +27,32 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <CRMProvider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Auth Routes */}
-            <Route path="/login" element={<Login />} />
-            
-            {/* App Routes - All wrapped in MainLayout */}
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/cases" element={<Cases />} />
-              <Route path="/cases/:id" element={<CaseDetails />} />
-              <Route path="/new-lead" element={<NewLeadIntake />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/properties" element={<Properties />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
-            
-            {/* Fallback Routes */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <ToastProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Auth Routes */}
+              <Route path="/login" element={<Login />} />
+              
+              {/* App Routes - All wrapped in MainLayout */}
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/cases" element={<Cases />} />
+                <Route path="/cases/:id" element={<CaseDetails />} />
+                <Route path="/new-lead" element={<NewLeadIntake />} />
+                <Route path="/contacts" element={<Contacts />} />
+                <Route path="/properties" element={<Properties />} />
+                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
+              
+              {/* Fallback Routes */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
       </TooltipProvider>
     </CRMProvider>
   </QueryClientProvider>
