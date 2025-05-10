@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
   FileText, 
@@ -55,7 +56,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CaseStage, Note } from "@/types";
+import { CaseStage, Note, Property, PropertyOwner, Tenant } from "@/types";
 
 const stageTitles: Record<CaseStage, string> = {
   1: "New Lead",
@@ -85,7 +86,7 @@ const CaseDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { cases, updateCaseStage, addNote, completeReminder } = useCRM();
+  const { cases, properties, owners, tenants, updateCaseStage, addNote, completeReminder } = useCRM();
   const [noteContent, setNoteContent] = useState("");
   const [advanceStageOpen, setAdvanceStageOpen] = useState(false);
   
@@ -105,10 +106,10 @@ const CaseDetails: React.FC = () => {
     );
   }
   
-  // Since getMock methods don't exist in context, we'll safely handle this
-  const property = caseItem.propertyId ? cases.find(c => c.id === id)?.property : undefined;
-  const owner = caseItem.propertyOwnerId ? cases.find(c => c.id === id)?.owner : undefined;
-  const tenant = caseItem.tenantId ? cases.find(c => c.id === id)?.tenant : undefined;
+  // Look up the related entities using their IDs
+  const property = properties.find(p => p.id === caseItem.propertyId);
+  const owner = owners.find(o => o.id === caseItem.propertyOwnerId);
+  const tenant = tenants.find(t => t.id === caseItem.tenantId);
   
   const handleAddNote = () => {
     if (noteContent.trim()) {
