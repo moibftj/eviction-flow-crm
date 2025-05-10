@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { 
@@ -15,7 +14,7 @@ import {
   Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 
 const MainLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);

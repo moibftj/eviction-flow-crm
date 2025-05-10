@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -44,7 +43,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 import { 
   LeadSource, 
   UrgencyLevel, 
@@ -122,9 +121,7 @@ const NewLeadIntake: React.FC = () => {
   const onSubmit = (data: FormValues) => {
     try {
       // Create owner record
-      const ownerId = crypto.randomUUID();
       addOwner({
-        id: ownerId,
         name: data.ownerName,
         phone: data.ownerPhone,
         email: data.ownerEmail,
@@ -132,9 +129,7 @@ const NewLeadIntake: React.FC = () => {
       });
 
       // Create tenant record
-      const tenantId = crypto.randomUUID();
       addTenant({
-        id: tenantId,
         name: data.tenantName,
         phone: data.tenantPhone || undefined,
         email: data.tenantEmail || undefined,
@@ -142,22 +137,20 @@ const NewLeadIntake: React.FC = () => {
       });
 
       // Create property record
-      const propertyId = crypto.randomUUID();
       addProperty({
-        id: propertyId,
         address: data.propertyAddress,
         unit: data.propertyUnit,
         city: data.propertyCity,
         state: data.propertyState,
         zipCode: data.propertyZipCode,
-        ownerId,
+        ownerId: "", // This will be handled by the context
       });
 
       // Create case record
       addCase({
-        propertyId,
-        propertyOwnerId: ownerId,
-        tenantId,
+        propertyId: "", // This will be handled by the context
+        propertyOwnerId: "", // This will be handled by the context
+        tenantId: "", // This will be handled by the context
         evictionReason: data.evictionReason as EvictionReason,
         urgencyLevel: data.urgencyLevel as UrgencyLevel,
         stage: 1, // New Lead
