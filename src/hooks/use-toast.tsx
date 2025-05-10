@@ -1,3 +1,4 @@
+
 // This file implements the toast hook functionality
 import * as React from "react"
 import {
@@ -56,7 +57,11 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-const reducer = (state: State, action: Action): State => {
+const reducer = (
+  state: State, 
+  action: Action,
+  addToRemoveQueue?: (toastId: string) => void
+): State => {
   switch (action.type) {
     case "ADD_TOAST":
       return {
@@ -75,14 +80,15 @@ const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
-      if (toastId) {
-        addToRemoveQueue(toastId)
-      } else {
-        state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
-        })
+      // Only attempt to use addToRemoveQueue if it's provided
+      if (addToRemoveQueue) {
+        if (toastId) {
+          addToRemoveQueue(toastId)
+        } else {
+          state.toasts.forEach((toast) => {
+            addToRemoveQueue(toast.id)
+          })
+        }
       }
 
       return {
@@ -111,22 +117,6 @@ const reducer = (state: State, action: Action): State => {
   }
 }
 
-function addToRemoveQueue(toastId: string) {
-  if (toastTimeouts.has(toastId)) {
-    return
-  }
-
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId)
-    dispatch({
-      type: "REMOVE_TOAST",
-      toastId: toastId,
-    })
-  }, TOAST_REMOVE_DELAY)
-
-  toastTimeouts.set(toastId, timeout)
-}
-
 interface ToastContextType extends State {
   toast: (props: Omit<ToasterToast, "id">) => void
   dismiss: (toastId?: string) => void
@@ -145,9 +135,31 @@ function useToast() {
 }
 
 function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = React.useReducer(reducer, {
+  // Create a ref with custom reducer
+  const reducerWithQueue = React.useCallback((state: State, action: Action) => {
+    return reducer(state, action, addToRemoveQueue)
+  }, [])
+  
+  const [state, dispatch] = React.useReducer(reducerWithQueue, {
     toasts: [],
   })
+
+  // Define addToRemoveQueue inside the component
+  function addToRemoveQueue(toastId: string) {
+    if (toastTimeouts.has(toastId)) {
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      toastTimeouts.delete(toastId)
+      dispatch({
+        type: "REMOVE_TOAST",
+        toastId: toastId,
+      })
+    }, TOAST_REMOVE_DELAY)
+
+    toastTimeouts.set(toastId, timeout)
+  }
 
   React.useEffect(() => {
     return () => {
