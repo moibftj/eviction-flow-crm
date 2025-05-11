@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+
+import React, { useState, useEffect } from "react";
+import { useNavigate, Outlet, Navigate } from "react-router-dom";
 import { 
   Calendar, 
   FileText, 
@@ -11,28 +12,47 @@ import {
   Menu,
   X,
   LogOut,
-  Settings
+  Settings,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const MainLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading, signOut } = useAuth();
+  
+  // Redirect to login if not authenticated
+  if (!loading && !user) {
+    return <Navigate to="/login" />;
+  }
   
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleLogout = () => {
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    // In a real app, you would handle actual logout here
+  const handleLogout = async () => {
+    await signOut();
     navigate("/login");
   };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-100">
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-12 rounded-full mx-auto" />
+          <Skeleton className="h-4 w-[250px]" />
+          <Skeleton className="h-4 w-[200px] mx-auto" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -58,6 +78,20 @@ const MainLayout: React.FC = () => {
             >
               {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </Button>
+          </div>
+          
+          {/* User profile */}
+          <div className={`p-4 border-b border-sidebar-border ${sidebarOpen ? 'flex items-center' : 'flex flex-col items-center'}`}>
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.full_name || user?.email} />
+              <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            {sidebarOpen && (
+              <div className="ml-3 overflow-hidden">
+                <p className="text-sm font-medium truncate">{user?.user_metadata?.full_name || 'User'}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+              </div>
+            )}
           </div>
           
           {/* Navigation Items */}
@@ -177,6 +211,13 @@ const MainLayout: React.FC = () => {
                   onClick={() => navigate("/new-lead")}
                 >
                   + Add New Lead
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/settings")}
+                >
+                  <User size={20} />
                 </Button>
               </div>
             </div>
