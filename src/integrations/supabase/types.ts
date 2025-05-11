@@ -9,102 +9,18 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string
-          full_name: string | null
-          id: string
-          updated_at: string
-          username: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          full_name?: string | null
-          id: string
-          updated_at?: string
-          username?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          full_name?: string | null
-          id?: string
-          updated_at?: string
-          username?: string | null
-        }
-        Relationships: []
-      }
-      shared_trips: {
+      Eviction: {
         Row: {
           created_at: string
-          id: string
-          permission: string
-          shared_by: string
-          shared_with: string
-          trip_id: string
+          id: number
         }
         Insert: {
           created_at?: string
-          id?: string
-          permission: string
-          shared_by: string
-          shared_with: string
-          trip_id: string
+          id?: number
         }
         Update: {
           created_at?: string
-          id?: string
-          permission?: string
-          shared_by?: string
-          shared_with?: string
-          trip_id?: string
-        }
-        Relationships: []
-      }
-      trips: {
-        Row: {
-          created_at: string
-          description: string | null
-          end_date: string | null
-          id: string
-          image_url: string | null
-          is_future: boolean | null
-          location: string
-          start_date: string | null
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          end_date?: string | null
-          id?: string
-          image_url?: string | null
-          is_future?: boolean | null
-          location: string
-          start_date?: string | null
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          end_date?: string | null
-          id?: string
-          image_url?: string | null
-          is_future?: boolean | null
-          location?: string
-          start_date?: string | null
-          title?: string
-          updated_at?: string
-          user_id?: string
+          id?: number
         }
         Relationships: []
       }
@@ -113,15 +29,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      share_trip_via_email: {
-        Args: {
-          p_trip_id: string
-          p_shared_by: string
-          p_email: string
-          p_permission: string
-        }
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
