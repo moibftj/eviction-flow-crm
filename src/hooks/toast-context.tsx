@@ -17,8 +17,8 @@ interface ToastContextType {
   dismiss: (toastId?: string) => void
 }
 
-// Create the context
-export const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
+// Create the context with a default empty object (but properly typed as undefined)
+export const ToastContext = React.createContext<ToastContextType | undefined>(undefined);
 
 // Create the hook to access the context
 export function useToast() {
@@ -31,8 +31,13 @@ export function useToast() {
   return context
 }
 
-// Create a standalone toast function
+// Create a standalone toast function that properly checks for context
 export const toast = (props: Omit<ToasterToast, "id">) => {
-  const { toast: toastFn } = useToast()
-  return toastFn(props)
+  try {
+    const { toast: toastFn } = useToast()
+    return toastFn(props)
+  } catch (error) {
+    console.error("Toast error:", error)
+    return "-1" // Return a fallback ID
+  }
 }
