@@ -30,12 +30,12 @@ const App = () => {
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <CRMProvider>
-            <TooltipProvider>
-              <ToastProvider>
-                <Toaster />
-                <Sonner />
+        <ToastProvider>
+          <Toaster />
+          <Sonner />
+          <TooltipProvider>
+            <AuthProvider>
+              <CRMProvider>
                 <BrowserRouter>
                   <Routes>
                     {/* Auth Routes */}
@@ -58,10 +58,10 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
-              </ToastProvider>
-            </TooltipProvider>
-          </CRMProvider>
-        </AuthProvider>
+              </CRMProvider>
+            </AuthProvider>
+          </TooltipProvider>
+        </ToastProvider>
       </QueryClientProvider>
     </React.StrictMode>
   );
