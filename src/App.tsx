@@ -5,9 +5,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { CRMProvider } from "@/context/CRMContext";
-import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/hooks/toast-provider";
+import { AuthProvider } from "@/context/AuthContext";
+import { CRMProvider } from "@/context/CRMContext";
 import MainLayout from "@/components/common/MainLayout";
 
 // Pages
