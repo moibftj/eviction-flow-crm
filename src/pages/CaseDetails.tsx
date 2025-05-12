@@ -96,7 +96,7 @@ const CaseDetails: React.FC = () => {
   const [setReminderOpen, setSetReminderOpen] = useState(false);
   const [contactOwnerOpen, setContactOwnerOpen] = useState(false);
   
-  // Form states - Fix the documentType to use the proper union type
+  // Form states
   const [documentName, setDocumentName] = useState("");
   const [documentType, setDocumentType] = useState<"notice" | "lease" | "court_filing" | "correspondence" | "other">("notice");
   const [reminderTitle, setReminderTitle] = useState("");
@@ -156,7 +156,7 @@ const CaseDetails: React.FC = () => {
       addDocument({
         name: documentName,
         type: documentType,
-        caseId: caseItem.id
+        url: "#", // Providing a placeholder URL since it's required by the Document type
       });
       setDocumentName("");
       setDocumentType("notice");

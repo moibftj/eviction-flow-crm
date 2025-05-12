@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
 import { 
   PropertyOwner, 
@@ -180,8 +179,22 @@ const crmReducer = (state = initialState, action: ActionType) => {
         id: generateId(),
         uploadedAt: new Date(),
       };
+
+      // Find the case to update with the new document
+      const updatedCases = state.cases.map(caseItem => {
+        if (caseItem.id === id) {
+          return {
+            ...caseItem,
+            documents: [...caseItem.documents, newDocument],
+            updatedAt: new Date()
+          };
+        }
+        return caseItem;
+      });
+
       return {
         ...state,
+        cases: updatedCases,
         documents: [...state.documents, newDocument],
       };
     case "UPDATE_DOCUMENT":
