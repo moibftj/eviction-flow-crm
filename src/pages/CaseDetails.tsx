@@ -57,6 +57,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { CaseStage, Note, Property, PropertyOwner, Tenant } from "@/types";
+import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
 
 const stageTitles: Record<CaseStage, string> = {
   1: "New Lead",
@@ -86,9 +90,20 @@ const CaseDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { cases, properties, owners, tenants, updateCaseStage, addNote, completeReminder } = useCRM();
+  const { cases, properties, owners, tenants, updateCaseStage, addNote, addReminder, addDocument, completeReminder } = useCRM();
   const [noteContent, setNoteContent] = useState("");
   const [advanceStageOpen, setAdvanceStageOpen] = useState(false);
+  const [addDocumentOpen, setAddDocumentOpen] = useState(false);
+  const [setReminderOpen, setSetReminderOpen] = useState(false);
+  const [contactOwnerOpen, setContactOwnerOpen] = useState(false);
+  
+  // Form states
+  const [documentName, setDocumentName] = useState("");
+  const [documentType, setDocumentType] = useState("notice");
+  const [reminderTitle, setReminderTitle] = useState("");
+  const [reminderDescription, setReminderDescription] = useState("");
+  const [reminderDueDate, setReminderDueDate] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
   
   // Find the case by ID
   const caseItem = cases.find(caseItem => caseItem.id === id);
@@ -132,6 +147,55 @@ const CaseDetails: React.FC = () => {
       toast({
         title: "Case Stage Advanced",
         description: `Case has been moved to ${stageTitles[(caseItem.stage + 1) as CaseStage]}.`,
+      });
+    }
+  };
+
+  const handleAddDocument = () => {
+    if (documentName.trim()) {
+      addDocument({
+        name: documentName,
+        type: documentType,
+        caseId: caseItem.id
+      });
+      setDocumentName("");
+      setDocumentType("notice");
+      setAddDocumentOpen(false);
+      toast({
+        title: "Document Added",
+        description: "Your document has been added to the case.",
+      });
+    }
+  };
+
+  const handleSetReminder = () => {
+    if (reminderTitle.trim() && reminderDueDate) {
+      addReminder({
+        title: reminderTitle,
+        description: reminderDescription,
+        dueDate: new Date(reminderDueDate),
+        caseId: caseItem.id,
+        completed: false
+      });
+      setReminderTitle("");
+      setReminderDescription("");
+      setReminderDueDate("");
+      setSetReminderOpen(false);
+      toast({
+        title: "Reminder Set",
+        description: "Your reminder has been added to the case.",
+      });
+    }
+  };
+
+  const handleContactOwner = () => {
+    if (contactMessage.trim()) {
+      // In a real app, this would send an email or message to the owner
+      setContactMessage("");
+      setContactOwnerOpen(false);
+      toast({
+        title: "Message Sent",
+        description: "Your message has been sent to the property owner.",
       });
     }
   };
@@ -389,7 +453,7 @@ const CaseDetails: React.FC = () => {
                       <div className="text-center py-10 text-gray-500">
                         <Paperclip className="mx-auto h-8 w-8 text-gray-300" />
                         <p className="mt-2">No documents uploaded yet.</p>
-                        <Button variant="outline" className="mt-4">
+                        <Button variant="outline" className="mt-4" onClick={() => setAddDocumentOpen(true)}>
                           Upload Document
                         </Button>
                       </div>
@@ -397,7 +461,7 @@ const CaseDetails: React.FC = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="border-t pt-4">
-                  <Button className="w-full">
+                  <Button className="w-full" onClick={() => setAddDocumentOpen(true)}>
                     <Paperclip className="mr-2 h-4 w-4" />
                     Upload New Document
                   </Button>
@@ -540,19 +604,19 @@ const CaseDetails: React.FC = () => {
               <CardTitle className="text-lg">Case Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button className="w-full justify-start">
+              <Button className="w-full justify-start" onClick={() => navigate(`/cases/${id}/edit`)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Case Details
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => setAddDocumentOpen(true)}>
                 <Paperclip className="mr-2 h-4 w-4" />
                 Add Document
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => setSetReminderOpen(true)}>
                 <Bell className="mr-2 h-4 w-4" />
                 Set Reminder
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start" onClick={() => setContactOwnerOpen(true)}>
                 <User className="mr-2 h-4 w-4" />
                 Contact Owner
               </Button>
@@ -583,7 +647,7 @@ const CaseDetails: React.FC = () => {
               </div>
             </CardContent>
             <CardFooter className="border-t pt-4">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={() => setSetReminderOpen(true)}>
                 <Bell className="mr-2 h-4 w-4" />
                 Add Reminder
               </Button>
@@ -591,6 +655,130 @@ const CaseDetails: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Add Document Dialog */}
+      <Dialog open={addDocumentOpen} onOpenChange={setAddDocumentOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Document</DialogTitle>
+            <DialogDescription>
+              Upload a new document to this case.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="documentName">Document Name</Label>
+              <Input 
+                id="documentName" 
+                placeholder="e.g., Eviction Notice" 
+                value={documentName}
+                onChange={(e) => setDocumentName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="documentType">Document Type</Label>
+              <Select value={documentType} onValueChange={setDocumentType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select document type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="notice">Notice</SelectItem>
+                  <SelectItem value="court_filing">Court Filing</SelectItem>
+                  <SelectItem value="lease">Lease</SelectItem>
+                  <SelectItem value="correspondence">Correspondence</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="documentFile">Upload File</Label>
+              <Input id="documentFile" type="file" className="border p-2" />
+              <p className="text-xs text-gray-500">Max file size: 10MB</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDocumentOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddDocument}>Upload Document</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Set Reminder Dialog */}
+      <Dialog open={setReminderOpen} onOpenChange={setSetReminderOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Reminder</DialogTitle>
+            <DialogDescription>
+              Create a new reminder for this case.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="reminderTitle">Title</Label>
+              <Input 
+                id="reminderTitle" 
+                placeholder="e.g., Court Hearing" 
+                value={reminderTitle}
+                onChange={(e) => setReminderTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reminderDueDate">Due Date</Label>
+              <Input 
+                id="reminderDueDate" 
+                type="datetime-local" 
+                value={reminderDueDate}
+                onChange={(e) => setReminderDueDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reminderDescription">Description (Optional)</Label>
+              <Textarea 
+                id="reminderDescription" 
+                placeholder="Add details about this reminder"
+                value={reminderDescription}
+                onChange={(e) => setReminderDescription(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSetReminderOpen(false)}>Cancel</Button>
+            <Button onClick={handleSetReminder}>Set Reminder</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Contact Owner Dialog */}
+      <Dialog open={contactOwnerOpen} onOpenChange={setContactOwnerOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Contact Property Owner</DialogTitle>
+            <DialogDescription>
+              Send a message to {owner?.name || "the property owner"}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="contactSubject">Subject</Label>
+              <Input id="contactSubject" defaultValue={`Regarding Case #${id?.slice(-5)}`} />
+            </div>
+            <div>
+              <Label htmlFor="contactMessage">Message</Label>
+              <Textarea 
+                id="contactMessage" 
+                placeholder="Type your message here" 
+                rows={5}
+                value={contactMessage}
+                onChange={(e) => setContactMessage(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setContactOwnerOpen(false)}>Cancel</Button>
+            <Button onClick={handleContactOwner}>Send Message</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
