@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
@@ -56,7 +55,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CaseStage, Note, Property, PropertyOwner, Tenant } from "@/types";
+import { CaseStage, Note, Property, PropertyOwner, Tenant, Document } from "@/types";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -97,13 +96,14 @@ const CaseDetails: React.FC = () => {
   const [setReminderOpen, setSetReminderOpen] = useState(false);
   const [contactOwnerOpen, setContactOwnerOpen] = useState(false);
   
-  // Form states
+  // Form states - Fix the documentType to use the proper union type
   const [documentName, setDocumentName] = useState("");
-  const [documentType, setDocumentType] = useState("notice");
+  const [documentType, setDocumentType] = useState<"notice" | "lease" | "court_filing" | "correspondence" | "other">("notice");
   const [reminderTitle, setReminderTitle] = useState("");
   const [reminderDescription, setReminderDescription] = useState("");
   const [reminderDueDate, setReminderDueDate] = useState("");
   const [contactMessage, setContactMessage] = useState("");
+  const [reminderNotificationType, setReminderNotificationType] = useState<"email" | "sms" | "in_app">("in_app");
   
   // Find the case by ID
   const caseItem = cases.find(caseItem => caseItem.id === id);
@@ -175,11 +175,13 @@ const CaseDetails: React.FC = () => {
         description: reminderDescription,
         dueDate: new Date(reminderDueDate),
         caseId: caseItem.id,
-        completed: false
+        completed: false,
+        notificationType: reminderNotificationType
       });
       setReminderTitle("");
       setReminderDescription("");
       setReminderDueDate("");
+      setReminderNotificationType("in_app");
       setSetReminderOpen(false);
       toast({
         title: "Reminder Set",
@@ -677,7 +679,12 @@ const CaseDetails: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="documentType">Document Type</Label>
-              <Select value={documentType} onValueChange={setDocumentType}>
+              <Select 
+                value={documentType} 
+                onValueChange={(value: "notice" | "court_filing" | "lease" | "correspondence" | "other") => 
+                  setDocumentType(value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select document type" />
                 </SelectTrigger>
@@ -739,6 +746,22 @@ const CaseDetails: React.FC = () => {
                 value={reminderDescription}
                 onChange={(e) => setReminderDescription(e.target.value)}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notificationType">Notification Type</Label>
+              <Select 
+                value={reminderNotificationType} 
+                onValueChange={(value: "email" | "sms" | "in_app") => setReminderNotificationType(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select notification type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="sms">SMS</SelectItem>
+                  <SelectItem value="in_app">In-App</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
