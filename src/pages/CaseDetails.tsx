@@ -126,6 +126,10 @@ const CaseDetails: React.FC = () => {
   const owner = owners.find(o => o.id === caseItem.propertyOwnerId);
   const tenant = tenants.find(t => t.id === caseItem.tenantId);
   
+  const handleEditCase = () => {
+    navigate(`/cases/${id}/edit`);
+  };
+  
   const handleAddNote = () => {
     if (noteContent.trim()) {
       addNote({
@@ -156,7 +160,8 @@ const CaseDetails: React.FC = () => {
       addDocument({
         name: documentName,
         type: documentType,
-        url: "#", // Providing a placeholder URL since it's required by the Document type
+        url: "#", // Providing a placeholder URL
+        caseId: caseItem.id, // Pass the caseId to associate the document
       });
       setDocumentName("");
       setDocumentType("notice");
@@ -222,7 +227,7 @@ const CaseDetails: React.FC = () => {
         subtitle={`${property?.address || 'Unknown Property'}`} 
         icon={<FileText size={24} />}
         actionLabel="Edit Case"
-        onAction={() => navigate(`/cases/${id}/edit`)}
+        onAction={handleEditCase}
       />
       
       {/* Case Overview */}
