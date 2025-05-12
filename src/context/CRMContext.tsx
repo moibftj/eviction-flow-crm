@@ -40,7 +40,7 @@ type CRMContextType = {
   addCase: (caseData: Omit<Case, "id" | "documents" | "reminders" | "notes" | "createdAt" | "updatedAt">) => void;
   updateCase: (caseData: Case) => void;
   updateCaseStage: (caseId: string, stage: CaseStage) => void;
-  addDocument: (document: Omit<Document, "id" | "uploadedAt">) => void;
+  addDocument: (document: Omit<Document, "id" | "uploadedAt"> & { caseId?: string }) => void;
   updateDocument: (document: Document) => void;
   addNote: (note: Omit<Note, "id" | "createdAt">) => void;
   addReminder: (reminder: Omit<Reminder, "id">) => void;
@@ -70,7 +70,7 @@ type ActionType =
   | { type: "ADD_CASE"; payload: Omit<Case, "id" | "documents" | "reminders" | "notes" | "createdAt" | "updatedAt"> }
   | { type: "UPDATE_CASE"; payload: Case }
   | { type: "UPDATE_CASE_STAGE"; payload: { caseId: string; stage: CaseStage } }
-  | { type: "ADD_DOCUMENT"; payload: Omit<Document, "id" | "uploadedAt"> }
+  | { type: "ADD_DOCUMENT"; payload: Omit<Document, "id" | "uploadedAt"> & { caseId?: string } }
   | { type: "UPDATE_DOCUMENT"; payload: Document }
   | { type: "ADD_NOTE"; payload: Omit<Note, "id" | "createdAt"> }
   | { type: "ADD_REMINDER"; payload: Omit<Reminder, "id"> }
@@ -180,17 +180,22 @@ const crmReducer = (state = initialState, action: ActionType) => {
         uploadedAt: new Date(),
       };
 
-      // Find the case to update with the new document
-      const updatedCases = state.cases.map(caseItem => {
-        if (caseItem.id === id) {
-          return {
-            ...caseItem,
-            documents: [...caseItem.documents, newDocument],
-            updatedAt: new Date()
-          };
-        }
-        return caseItem;
-      });
+      // Extract caseId from payload (if provided)
+      const { caseId, ...documentData } = action.payload;
+
+      // Only update case documents if caseId is provided
+      const updatedCases = caseId 
+        ? state.cases.map(caseItem => {
+            if (caseItem.id === caseId) {
+              return {
+                ...caseItem,
+                documents: [...caseItem.documents, newDocument],
+                updatedAt: new Date()
+              };
+            }
+            return caseItem;
+          })
+        : state.cases;
 
       return {
         ...state,
@@ -287,7 +292,7 @@ export const CRMProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     dispatch({ type: "UPDATE_CASE_STAGE", payload: { caseId, stage } });
   };
 
-  const addDocument = (document: Omit<Document, "id" | "uploadedAt">) => {
+  const addDocument = (document: Omit<Document, "id" | "uploadedAt"> & { caseId?: string }) => {
     dispatch({ type: "ADD_DOCUMENT", payload: document });
   };
 
