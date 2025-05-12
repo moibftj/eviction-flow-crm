@@ -32,6 +32,7 @@ const Contacts: React.FC = () => {
   const navigate = useNavigate();
   const { owners, tenants } = useCRM();
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("owners");
   
   // Filter owners and tenants based on search query
   const filteredOwners = owners.filter(owner => 
@@ -48,6 +49,10 @@ const Contacts: React.FC = () => {
     (tenant.phone && tenant.phone.toLowerCase().includes(searchQuery.toLowerCase()))
   );
   
+  const handleAddContact = () => {
+    navigate(`/contacts/new/${activeTab}`);
+  };
+  
   return (
     <div className="space-y-6">
       <PageHeader 
@@ -55,7 +60,7 @@ const Contacts: React.FC = () => {
         subtitle="Manage property owners and tenants" 
         icon={<Users size={24} />}
         actionLabel="New Contact"
-        onAction={() => navigate("/contacts/new")}
+        onAction={handleAddContact}
       />
       
       {/* Search */}
@@ -69,14 +74,14 @@ const Contacts: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button onClick={() => navigate("/contacts/new")}>
+        <Button onClick={handleAddContact}>
           <UserPlus className="mr-2 h-4 w-4" />
           Add Contact
         </Button>
       </div>
       
       {/* Tabs */}
-      <Tabs defaultValue="owners">
+      <Tabs defaultValue="owners" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="owners">
             <Building className="mr-2 h-4 w-4" />

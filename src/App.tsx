@@ -16,6 +16,7 @@ import Cases from "./pages/Cases";
 import CaseDetails from "./pages/CaseDetails";
 import NewLeadIntake from "./pages/NewLeadIntake";
 import Contacts from "./pages/Contacts";
+import CreateContact from "./pages/CreateContact";
 import Properties from "./pages/Properties";
 import CalendarPage from "./pages/CalendarPage";
 import Reports from "./pages/Reports";
@@ -49,6 +50,7 @@ const App = () => {
                       <Route path="/cases/:id/edit" element={<NewLeadIntake />} />
                       <Route path="/new-lead" element={<NewLeadIntake />} />
                       <Route path="/contacts" element={<Contacts />} />
+                      <Route path="/contacts/new/:type" element={<CreateContact />} />
                       <Route path="/properties" element={<Properties />} />
                       <Route path="/calendar" element={<CalendarPage />} />
                       <Route path="/reports" element={<Reports />} />

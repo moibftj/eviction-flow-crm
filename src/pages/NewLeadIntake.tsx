@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCRM } from "@/context/CRMContext";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { UrgencyLevel, EvictionReason, CaseStage } from "@/types";
 
 const NewLeadIntake = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,10 +27,11 @@ const NewLeadIntake = () => {
     propertyId: currentCase?.propertyId || "",
     propertyOwnerId: currentCase?.propertyOwnerId || "",
     tenantId: currentCase?.tenantId || "",
-    evictionReason: currentCase?.evictionReason || "non_payment",
-    urgencyLevel: currentCase?.urgencyLevel || "normal",
-    stage: currentCase?.stage || 1,
+    evictionReason: currentCase?.evictionReason || "non_payment" as EvictionReason,
+    urgencyLevel: currentCase?.urgencyLevel || "normal" as UrgencyLevel,
+    stage: currentCase?.stage || 1 as CaseStage,
     description: currentCase?.description || "",
+    leadSource: currentCase?.leadSource || "website_form" 
   });
 
   const handleChange = (e) => {
@@ -75,10 +78,8 @@ const NewLeadIntake = () => {
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="propertyId">Property</Label>
+          <Label htmlFor="propertySelect">Property</Label>
           <Select
-            id="propertyId"
-            name="propertyId"
             value={formData.propertyId}
             onValueChange={(value) => setFormData(prevData => ({ ...prevData, propertyId: value }))}
           >
@@ -94,10 +95,8 @@ const NewLeadIntake = () => {
         </div>
         
         <div>
-          <Label htmlFor="propertyOwnerId">Property Owner</Label>
+          <Label htmlFor="propertyOwnerSelect">Property Owner</Label>
           <Select
-            id="propertyOwnerId"
-            name="propertyOwnerId"
             value={formData.propertyOwnerId}
             onValueChange={(value) => setFormData(prevData => ({ ...prevData, propertyOwnerId: value }))}
           >
@@ -113,10 +112,8 @@ const NewLeadIntake = () => {
         </div>
         
         <div>
-          <Label htmlFor="tenantId">Tenant</Label>
+          <Label htmlFor="tenantSelect">Tenant</Label>
           <Select
-            id="tenantId"
-            name="tenantId"
             value={formData.tenantId}
             onValueChange={(value) => setFormData(prevData => ({ ...prevData, tenantId: value }))}
           >
@@ -132,12 +129,13 @@ const NewLeadIntake = () => {
         </div>
         
         <div>
-          <Label htmlFor="evictionReason">Eviction Reason</Label>
+          <Label htmlFor="evictionReasonSelect">Eviction Reason</Label>
           <Select
-            id="evictionReason"
-            name="evictionReason"
             value={formData.evictionReason}
-            onValueChange={(value) => setFormData(prevData => ({ ...prevData, evictionReason: value }))}
+            onValueChange={(value) => setFormData(prevData => ({ 
+              ...prevData, 
+              evictionReason: value as EvictionReason 
+            }))}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select eviction reason" />
@@ -152,12 +150,13 @@ const NewLeadIntake = () => {
         </div>
         
         <div>
-          <Label htmlFor="urgencyLevel">Urgency Level</Label>
+          <Label htmlFor="urgencyLevelSelect">Urgency Level</Label>
           <Select
-            id="urgencyLevel"
-            name="urgencyLevel"
             value={formData.urgencyLevel}
-            onValueChange={(value) => setFormData(prevData => ({ ...prevData, urgencyLevel: value }))}
+            onValueChange={(value) => setFormData(prevData => ({ 
+              ...prevData, 
+              urgencyLevel: value as UrgencyLevel
+            }))}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select urgency level" />
@@ -166,6 +165,28 @@ const NewLeadIntake = () => {
               <SelectItem value="normal">Normal</SelectItem>
               <SelectItem value="urgent">Urgent</SelectItem>
               <SelectItem value="asap">ASAP</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label htmlFor="leadSourceSelect">Lead Source</Label>
+          <Select
+            value={formData.leadSource}
+            onValueChange={(value) => setFormData(prevData => ({ 
+              ...prevData, 
+              leadSource: value 
+            }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select lead source" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="website_form">Website Form</SelectItem>
+              <SelectItem value="phone_call">Phone Call</SelectItem>
+              <SelectItem value="referral">Referral</SelectItem>
+              <SelectItem value="ad_campaign">Ad Campaign</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
