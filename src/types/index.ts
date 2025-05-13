@@ -8,6 +8,8 @@ export type LeadSource =
 
 export type UrgencyLevel = 
   | "asap" 
+  | "urgent"
+  | "normal"
   | "30_days" 
   | "60_days" 
   | "90_days" 
@@ -46,6 +48,8 @@ export interface Document {
   uploadedAt: Date;
   signatureStatus?: "unsigned" | "pending" | "signed";
   notes?: string;
+  caseId?: string;
+  deleted?: boolean;
 }
 
 export interface Note {
@@ -112,6 +116,15 @@ export interface Case {
   notes: Note[];
   createdAt: Date;
   updatedAt: Date;
+  // Additional fields for enhanced form
+  additionalTenants?: string;
+  rentOwed?: string;
+  pastEvictions?: boolean;
+  legalNoticeServed?: boolean;
+  legalNoticeDateServed?: string;
+  preferredDate?: string;
+  preferredTime?: string;
+  signature?: string;
 }
 
 // Analytics types

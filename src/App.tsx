@@ -18,6 +18,7 @@ import NewLeadIntake from "./pages/NewLeadIntake";
 import Contacts from "./pages/Contacts";
 import CreateContact from "./pages/CreateContact";
 import Properties from "./pages/Properties";
+import Documents from "./pages/Documents";
 import CalendarPage from "./pages/CalendarPage";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -52,6 +53,7 @@ const App = () => {
                       <Route path="/contacts" element={<Contacts />} />
                       <Route path="/contacts/new/:type" element={<CreateContact />} />
                       <Route path="/properties" element={<Properties />} />
+                      <Route path="/documents" element={<Documents />} />
                       <Route path="/calendar" element={<CalendarPage />} />
                       <Route path="/reports" element={<Reports />} />
                       <Route path="/settings" element={<Settings />} />

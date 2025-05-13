@@ -1,3 +1,4 @@
+
 import { 
   PropertyOwner, 
   Tenant, 
@@ -141,6 +142,27 @@ export const crmReducer = (state: CRMState, action: ActionType): CRMState => {
         documents: state.documents.map(doc => 
           doc.id === action.payload.id ? action.payload : doc
         ),
+        cases: state.cases.map(caseItem => ({
+          ...caseItem,
+          documents: caseItem.documents.map(doc => 
+            doc.id === action.payload.id ? action.payload : doc
+          )
+        })),
+      };
+    case "DELETE_DOCUMENT":
+      return {
+        ...state,
+        // Mark document as deleted instead of removing it
+        documents: state.documents.map(doc => 
+          doc.id === action.payload ? { ...doc, deleted: true } : doc
+        ),
+        // Also update documents in cases
+        cases: state.cases.map(caseItem => ({
+          ...caseItem,
+          documents: caseItem.documents.map(doc => 
+            doc.id === action.payload ? { ...doc, deleted: true } : doc
+          )
+        })),
       };
     case "ADD_NOTE":
       const newNote: Note = {

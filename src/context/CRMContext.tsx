@@ -55,6 +55,10 @@ export const CRMProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     dispatch({ type: "UPDATE_DOCUMENT", payload: document });
   };
 
+  const deleteDocument = (documentId: string) => {
+    dispatch({ type: "DELETE_DOCUMENT", payload: documentId });
+  };
+
   const addNote = (note: Parameters<CRMContextType["addNote"]>[0]) => {
     dispatch({ type: "ADD_NOTE", payload: note });
   };
@@ -84,6 +88,7 @@ export const CRMProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     updateCaseStage,
     addDocument,
     updateDocument,
+    deleteDocument,
     addNote,
     addReminder,
     updateReminder,

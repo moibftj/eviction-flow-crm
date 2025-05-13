@@ -1,22 +1,24 @@
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Calendar, 
   FileText, 
   Home,
   Users,
-  Database,
+  Building,
   ChartBar,
   Bell,
   LogOut,
   Settings,
   Menu,
-  X
+  X,
+  FileUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@supabase/supabase-js";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SidebarNavProps {
   user: User | null;
@@ -32,12 +34,34 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
   handleLogout 
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  
+  const navItems = [
+    { path: "/", label: "Dashboard", icon: Home },
+    { path: "/cases", label: "Cases", icon: FileText },
+    { path: "/contacts", label: "Contacts", icon: Users },
+    { path: "/properties", label: "Properties", icon: Building },
+    { path: "/documents", label: "Documents", icon: FileUp },
+    { path: "/calendar", label: "Calendar", icon: Calendar },
+    { path: "/reports", label: "Reports", icon: ChartBar },
+  ];
+  
+  const isPathActive = (path: string) => {
+    // For exact match
+    if (location.pathname === path) return true;
+    
+    // For nested routes (except for root path)
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    
+    return false;
+  };
   
   return (
-    <div 
-      className={`bg-sidebar text-sidebar-foreground ${
-        sidebarOpen ? "w-64" : "w-20"
-      } transition-all duration-300 ease-in-out flex-shrink-0`}
+    <aside 
+      className={`bg-sidebar text-sidebar-foreground flex flex-col h-full transition-all duration-300 ease-in-out ${
+        sidebarOpen ? "w-64" : isMobile ? "w-0 overflow-hidden" : "w-20"
+      }`}
     >
       <div className="flex flex-col h-full">
         {/* Logo */}
@@ -72,68 +96,22 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
         </div>
         
         {/* Navigation Items */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
-            <li>
-              <Button 
-                variant="ghost"
-                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`}
-                onClick={() => navigate("/")}
-              >
-                <Home size={20} />
-                {sidebarOpen && <span className="ml-3">Dashboard</span>}
-              </Button>
-            </li>
-            <li>
-              <Button 
-                variant="ghost"
-                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`}
-                onClick={() => navigate("/cases")}
-              >
-                <FileText size={20} />
-                {sidebarOpen && <span className="ml-3">Cases</span>}
-              </Button>
-            </li>
-            <li>
-              <Button 
-                variant="ghost"
-                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`}
-                onClick={() => navigate("/contacts")}
-              >
-                <Users size={20} />
-                {sidebarOpen && <span className="ml-3">Contacts</span>}
-              </Button>
-            </li>
-            <li>
-              <Button 
-                variant="ghost"
-                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`}
-                onClick={() => navigate("/properties")}
-              >
-                <Database size={20} />
-                {sidebarOpen && <span className="ml-3">Properties</span>}
-              </Button>
-            </li>
-            <li>
-              <Button 
-                variant="ghost"
-                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`}
-                onClick={() => navigate("/calendar")}
-              >
-                <Calendar size={20} />
-                {sidebarOpen && <span className="ml-3">Calendar</span>}
-              </Button>
-            </li>
-            <li>
-              <Button 
-                variant="ghost"
-                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`}
-                onClick={() => navigate("/reports")}
-              >
-                <ChartBar size={20} />
-                {sidebarOpen && <span className="ml-3">Reports</span>}
-              </Button>
-            </li>
+            {navItems.map((item) => (
+              <li key={item.path}>
+                <Button 
+                  variant={isPathActive(item.path) ? "secondary" : "ghost"}
+                  className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                    isPathActive(item.path) ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                  }`}
+                  onClick={() => navigate(item.path)}
+                >
+                  <item.icon size={20} />
+                  {sidebarOpen && <span className="ml-3">{item.label}</span>}
+                </Button>
+              </li>
+            ))}
           </ul>
         </nav>
         
@@ -153,7 +131,9 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
             <li>
               <Button 
                 variant="ghost"
-                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`}
+                className={`w-full justify-start ${sidebarOpen ? 'px-4' : 'px-2'} hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                  isPathActive("/settings") ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                }`}
                 onClick={() => navigate("/settings")}
               >
                 <Settings size={20} />
@@ -173,7 +153,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
           </ul>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 

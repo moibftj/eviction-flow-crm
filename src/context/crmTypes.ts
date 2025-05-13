@@ -31,6 +31,7 @@ export type CRMContextType = {
   updateCaseStage: (caseId: string, stage: CaseStage) => void;
   addDocument: (document: Omit<Document, "id" | "uploadedAt"> & { caseId?: string }) => void;
   updateDocument: (document: Document) => void;
+  deleteDocument: (documentId: string) => void;
   addNote: (note: Omit<Note, "id" | "createdAt">) => void;
   addReminder: (reminder: Omit<Reminder, "id">) => void;
   updateReminder: (reminder: Reminder) => void;
@@ -61,6 +62,7 @@ export type ActionType =
   | { type: "UPDATE_CASE_STAGE"; payload: { caseId: string; stage: CaseStage } }
   | { type: "ADD_DOCUMENT"; payload: Omit<Document, "id" | "uploadedAt"> & { caseId?: string } }
   | { type: "UPDATE_DOCUMENT"; payload: Document }
+  | { type: "DELETE_DOCUMENT"; payload: string }
   | { type: "ADD_NOTE"; payload: Omit<Note, "id" | "createdAt"> }
   | { type: "ADD_REMINDER"; payload: Omit<Reminder, "id"> }
   | { type: "UPDATE_REMINDER"; payload: Reminder }
