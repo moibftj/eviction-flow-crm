@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { UrgencyLevel, EvictionReason, CaseStage } from "@/types";
+import { UrgencyLevel, EvictionReason, CaseStage, LeadSource } from "@/types";
 
 const NewLeadIntake = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,7 +31,7 @@ const NewLeadIntake = () => {
     urgencyLevel: currentCase?.urgencyLevel || "normal" as UrgencyLevel,
     stage: currentCase?.stage || 1 as CaseStage,
     description: currentCase?.description || "",
-    leadSource: currentCase?.leadSource || "website_form" 
+    leadSource: currentCase?.leadSource || "website_form" as LeadSource 
   });
 
   const handleChange = (e) => {
@@ -175,7 +175,7 @@ const NewLeadIntake = () => {
             value={formData.leadSource}
             onValueChange={(value) => setFormData(prevData => ({ 
               ...prevData, 
-              leadSource: value 
+              leadSource: value as LeadSource
             }))}
           >
             <SelectTrigger>
