@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -57,6 +56,8 @@ const App = () => {
                       <Route path="/calendar" element={<CalendarPage />} />
                       <Route path="/reports" element={<Reports />} />
                       <Route path="/settings" element={<Settings />} />
+                      {/* Redirect /notifications to dashboard for now */}
+                      <Route path="/notifications" element={<Navigate to="/" replace />} />
                     </Route>
                     
                     {/* Fallback Routes */}
