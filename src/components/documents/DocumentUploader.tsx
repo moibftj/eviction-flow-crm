@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useCRM } from "@/context/CRMContext";
 import { Document } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DocumentUploaderProps {
   caseId?: string;
@@ -49,6 +50,24 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setFiles(files.filter((_, i) => i !== index));
   };
 
+  // Save file to Supabase Storage and get a public URL
+  const uploadFileToSupabase = async (file: File): Promise<string | null> => {
+    const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}-${file.name}`;
+    const { data, error } = await supabase.storage
+      .from('documents')
+      .upload(uniqueFileName, file, { upsert: false });
+
+    if (error) {
+      console.error("Upload error:", error);
+      setErrors(prev => [...prev, `${file.name}: ${error.message}`]);
+      return null;
+    }
+
+    // Get the public URL
+    const { data: urlData } = supabase.storage.from('documents').getPublicUrl(uniqueFileName);
+    return urlData?.publicUrl ?? null;
+  };
+
   const uploadFiles = async () => {
     if (files.length === 0) {
       toast({
@@ -65,38 +84,37 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     try {
       const uploadedDocuments: Document[] = [];
       
-      // Process each file
       for (const file of files) {
-        // In a real app, this would be an actual upload to a server/storage
-        // For now we'll simulate the upload and create document entries
-        
-        // Create a document object (simulate upload)
+        // 1. Upload to Supabase
+        const url = await uploadFileToSupabase(file);
+        if (!url) continue;
+
+        // 2. Create a document object (simulate upload)
         const document: Omit<Document, "id" | "uploadedAt"> & { caseId?: string } = {
           name: file.name,
           type: getDocumentType(file),
-          url: URL.createObjectURL(file), // In real app, this would be the uploaded file URL
+          url, // Use storage URL now
           notes: `Uploaded on ${new Date().toLocaleDateString()}`,
           ...(caseId && { caseId })
         };
         
-        // Add the document to the CRM context
+        // 3. Add to CRM context (this will store it in app state)
         addDocument(document);
-        
+
+        // 4. Populate uploadedDocuments with the correct info (id and uploadedAt are faked here)
         uploadedDocuments.push({
           ...document,
-          id: "temp-id", // This would be replaced by the real ID
+          id: "temp-id", // The true id will be populated downstream by CRM context/reducers
           uploadedAt: new Date()
         } as Document);
       }
       
       toast({
         title: "Files uploaded successfully",
-        description: `${files.length} file(s) have been uploaded.`
+        description: `${uploadedDocuments.length} file(s) have been uploaded.`
       });
       
-      // Clear files after successful upload
       setFiles([]);
-      
       if (onUploadComplete) {
         onUploadComplete(uploadedDocuments);
       }
@@ -114,6 +132,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     }
   };
   
+  // Detect document type from file name
   const getDocumentType = (file: File): "lease" | "notice" | "court_filing" | "correspondence" | "other" => {
     const name = file.name.toLowerCase();
     if (name.includes("lease")) return "lease";
@@ -229,3 +248,4 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 };
 
 export default DocumentUploader;
+
