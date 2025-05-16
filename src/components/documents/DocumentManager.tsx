@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,10 +63,12 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({
     }
   };
 
+  // Updated download logic to actually open/download the file
   const handleDownloadDocument = (doc: Document) => {
     try {
-      // In a real app, this would trigger a download from the file URL
-      // For now, we'll just show a toast
+      if (doc.url) {
+        window.open(doc.url, '_blank', 'noopener,noreferrer');
+      }
       toast({
         title: "Download started",
         description: `Downloading ${doc.name}`
